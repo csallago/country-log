@@ -1,7 +1,9 @@
 package com.mercadolibre.countrylog.controller;
 
 import com.mercadolibre.countrylog.domain.Country;
+import com.mercadolibre.countrylog.domain.CountryDistance;
 import com.mercadolibre.countrylog.service.CountryInfoService;
+import com.mercadolibre.countrylog.service.CountryStatsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +18,23 @@ public class CountryLogController {
     @Autowired
     CountryInfoService infoService;
 
+    @Autowired
+    CountryStatsService statsService;
+
     @GetMapping("/{ip}")
     public Country getCountryInfo(@PathVariable String ip){
-        return infoService.getCountryInfoByIp(ip);
+        Country country = infoService.getCountryInfoByIp(ip);
+        statsService.updateStats(country.getDistance(), country.getName());
+        return country;
     }
 
+    @GetMapping("/stat/farthest")
+    public CountryDistance getFarthestCountry(){
+        return statsService.getFarthestCountry();
+    }
+
+    @GetMapping("/stat/nearthest")
+    public CountryDistance getNearthestCountry(){
+        return statsService.getNearthestCountry();
+    }
 }
