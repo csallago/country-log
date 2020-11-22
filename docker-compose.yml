@@ -1,8 +1,17 @@
 version: "3.7"
 services:
-
-  redis:
+  app:
+    build: .
+    restart: always
+    container_name: countrylogcontainer
+    ports:
+     - "8080:8080"
+    links:
+     - "db:redis"
+  db:
     image: redis:alpine
+    container_name: rediscontainer
+    hostname: redis
     ports:
       - "6379:6379"
     deploy:
