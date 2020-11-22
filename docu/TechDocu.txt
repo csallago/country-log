@@ -1,0 +1,84 @@
+El presente documento registra aspectos técnicos de la solución desarrollada.
+
+Tecnologia de la solución
+---------- -- -- --------
+
+- Lenguaje: Java 8
+- Fwk: Spring boot
+- Bd/Cache: Redis
+- dockerfile + docker-compose
+- Maven
+
+
+Detalles de la solución
+-------- -- -- --------
+
+- El desarrollo se apoyo en los mecanismos de spring de IoC para la instanciación de los distintos componentes,
+- La estructura de paquetes utilizadas fue la de convención de estereotipos propuesta por Spring.
+- Se utilizo un Servicio Redis para el almacenamiento de estadisticas, como también de cache para algunos de los servicios Rest contra terceros. 
+La utilización de Redis se definió basado en su gran velocidad y su capacidad de escalamiento horizontal. Esto con el objeto de dar soporte al requerimiento que planteaba las ráfagas de tráfico.
+- La configuración de Redis del proyecto actual es básica, pero con la capacidad de poder evolucionarla de acuerdo al contexto.
+- El acceso a Redis desde el proyecto se hizo utilizando Spring Data con el objetivo de tener un mayor nivel de abstracción y la posibilidad a futuro de poder cambiar el repositorio de almacenamiento con muy bajo impacto en la solución.
+- Los componentes de la solución han sido construidos Stateless y permiten el escalamiento necesario para garantizar el servicio.
+- Se decidió cachear los resultados de la api http://restcountries.eu/ debido a que no varian en el tiempo. Es decir, se deberia invalidar esta info cada un tiempo t (fuera del alcance del proyecto)
+- Si bien la solución no provee un balanceador especifico, si la solución esta preparada para ser usada en un contexto con balanceadores de carga.
+- Para el monitoreo de la aplicación tanto en el aspecto operativo como también el aspecto funcional, se recomienda el uso de metricas en Datadog o New Relic (metricas no incluidas en el proyecto)
+- En entornos productivos de la solución, se recomiendo realizar deploy de tipo Blue/Green.
+- Para el mantenimiento del código se recomienda tener chequeos de cobertura de test, como también chequeos de estilo del código.
+- Para la resiliencia frente la caida de servicios externos, evaluar el uso de cache para la totalidad de los servicios. La solución solo maneja cache para el ser servicio RESTCountries
+- El error en una API de terceros, es un error gestionado dentro de la solución.
+- Con el objeto de securizar/gestionar los servicios REST de la solución, se podria implementar un catálogo con todos los endpoints habilitados para el uso de estos servicios. Una opción con mayor nivel de granularidad seria la implementación de Oauth2.
+
+Como probar la aplicación
+---- ------ -- ----------
+
+- Descomprimir el zip del proyecto
+
+- ejecutar: 
+    mvn clean install
+    para compilar/paquetizar la solución
+
+- ejecutar: 
+    docker-compose up -d 
+    para crear/descargar las imagenes docker del proyecto. La solución quedará ejecutando en backgrond (-d)
+
+- La aplicación ya esta lista para ser probada. Para mas detalles, ver la sección "Api de la solución"
+
+- Al finalizar la prueba ejecutar una de las 2 opciones:
+    - docker-compose down
+      para detener los containers y eliminarlos.
+    - "docker stop countrylogcontainer" y "docker stop rediscontainer"
+      para detener los containers, pero no eliminarlos (manteniendo por ej. los datos para futuras ejecuciones - docker start)
+
+
+Api de la solución
+--- -- -- --------
+
+- Consulta de información del país a partir de una IP:
+    GET http://localhost:8080/countrylog/160.6.7.8
+
+    curl -X GET \
+        'http://localhost:8080/countrylog/160.6.7.8' \
+        -H 'Content-Type: application/json'
+
+- Consulta de estadisticos:
+    - pais mas lejano
+    GET http://localhost:8080/countrylog/stat/farthest
+
+    curl -X GET \
+        'http://localhost:8080/countrylog/stat/farthest' \
+        -H 'Content-Type: application/json'
+
+    - país mas cercano
+    GET http://localhost:8080/countrylog/stat/nearthest
+
+    curl -X GET \
+        'http://localhost:8080/countrylog/stat/nearthest' \
+        -H 'Content-Type: application/json'
+
+    - distancia promedio de todos los países consultados
+    GET http://localhost:8080/countrylog/stat/average
+
+    curl -X GET \
+        'http://localhost:8080/countrylog/stat/average' \
+        -H 'Content-Type: application/json'
