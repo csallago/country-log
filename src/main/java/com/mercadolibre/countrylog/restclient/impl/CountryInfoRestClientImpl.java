@@ -1,7 +1,10 @@
 package com.mercadolibre.countrylog.restclient.impl;
 
+import java.util.Optional;
+
 import com.mercadolibre.countrylog.exception.IPNotFoundException;
 import com.mercadolibre.countrylog.exception.ServiceNotAvailableException;
+import com.mercadolibre.countrylog.repository.CountryInfoRepository;
 import com.mercadolibre.countrylog.restclient.CountryInfoRestClient;
 import com.mercadolibre.countrylog.restclient.dto.CountryInfo;
 import com.mercadolibre.countrylog.restclient.dto.ExchangeRates;
@@ -18,6 +21,12 @@ public class CountryInfoRestClientImpl implements CountryInfoRestClient {
     private static final String URL_EXCHANGE_RATES_API = "https://api.exchangeratesapi.io/latest?base=%s";
     private static final String USD_CODE = "USD";
     
+    private CountryInfoRepository countryInfoRepo;
+
+    public CountryInfoRestClientImpl(CountryInfoRepository countryInfoRepo) {
+        this.countryInfoRepo = countryInfoRepo;
+    }
+
     @Override
     public Ip2Country getCountryCodeByIp(String ip) {
         
@@ -36,10 +45,15 @@ public class CountryInfoRestClientImpl implements CountryInfoRestClient {
     
     @Override
     public CountryInfo getCountryInfoByCode(String code) {
+        Optional<CountryInfo> op = countryInfoRepo.findById(code);
+    
+        if (op.isPresent())
+            return op.get();
         
         RestTemplate restTemplate = new RestTemplate();
         try {
             CountryInfo response = restTemplate.getForObject(String.format(URL_RESTCOUNTRY, code), CountryInfo.class);
+            countryInfoRepo.save(response);
             return response;
         } catch (Exception e) {
             throw new ServiceNotAvailableException(e.getMessage());

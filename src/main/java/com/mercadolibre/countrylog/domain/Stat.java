@@ -2,14 +2,15 @@ package com.mercadolibre.countrylog.domain;
 
 import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @RedisHash("Stat")
 public class Stat implements Serializable{
     private static final String NA = "N/A";
 
-    //@Indexed
-    private String id; //farestba, nearestba, avg??
+    @Id
+    private String id;
     private String value;
     private String countryName;
 

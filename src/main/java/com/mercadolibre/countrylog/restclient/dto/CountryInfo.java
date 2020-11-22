@@ -4,8 +4,12 @@ import java.util.List;
 
 import com.mercadolibre.countrylog.domain.Language;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+@RedisHash ("CountryInfo")
 public class CountryInfo {
     private String name;
+    @Id
     private String alpha2Code;
     private String alpha3Code;
     private List<String> timezones;
