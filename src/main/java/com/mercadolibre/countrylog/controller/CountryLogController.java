@@ -8,6 +8,8 @@ import com.mercadolibre.countrylog.domain.CountryDistance;
 import com.mercadolibre.countrylog.service.CountryInfoService;
 import com.mercadolibre.countrylog.service.CountryStatsService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/countrylog")
 public class CountryLogController {
-    
+    private final static Logger LOG = LoggerFactory.getLogger(CountryLogController.class);
+
     @Autowired
     CountryInfoService infoService;
 
@@ -26,6 +29,7 @@ public class CountryLogController {
 
     @GetMapping("/{ip}")
     public Country getCountryInfo(@PathVariable String ip){
+        LOG.info("Country Info to IP: "+ip);
         Country country = infoService.getCountryInfoByIp(ip);
         statsService.updateStats(country.getDistance(), country.getName());
         return country;

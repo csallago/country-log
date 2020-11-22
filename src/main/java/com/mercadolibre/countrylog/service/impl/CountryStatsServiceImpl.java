@@ -1,5 +1,7 @@
 package com.mercadolibre.countrylog.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 import com.mercadolibre.countrylog.domain.CountryDistance;
@@ -51,8 +53,9 @@ public class CountryStatsServiceImpl implements CountryStatsService{
             return 0d;
         double num = Double.parseDouble(opNum.get().getValue());
         double den = Double.parseDouble(opDen.get().getValue());
-        
-        return num / den;
+        double result = num / den;
+        BigDecimal.valueOf(result).setScale(2, RoundingMode.FLOOR).doubleValue();
+        return BigDecimal.valueOf(result).setScale(2, RoundingMode.FLOOR).doubleValue();
     }
 
     public void updateStats(Double distance, String countryName) {
