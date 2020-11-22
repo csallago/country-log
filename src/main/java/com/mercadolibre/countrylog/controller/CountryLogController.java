@@ -1,5 +1,8 @@
 package com.mercadolibre.countrylog.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mercadolibre.countrylog.domain.Country;
 import com.mercadolibre.countrylog.domain.CountryDistance;
 import com.mercadolibre.countrylog.service.CountryInfoService;
@@ -36,5 +39,12 @@ public class CountryLogController {
     @GetMapping("/stat/nearthest")
     public CountryDistance getNearthestCountry(){
         return statsService.getNearthestCountry();
+    }
+
+    @GetMapping("/stat/average")
+    public Map<String, Object> getAverageDistanceCountry(){
+        Map<String, Object> response = new HashMap<>();
+        response.put("average_distance_history", statsService.getAverageDistance());
+        return response;
     }
 }

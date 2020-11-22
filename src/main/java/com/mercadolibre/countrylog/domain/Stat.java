@@ -3,10 +3,11 @@ package com.mercadolibre.countrylog.domain;
 import java.io.Serializable;
 
 import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
 
 @RedisHash("Stat")
 public class Stat implements Serializable{
+    private static final String NA = "N/A";
+
     //@Indexed
     private String id; //farestba, nearestba, avg??
     private String value;
@@ -18,6 +19,12 @@ public class Stat implements Serializable{
         this.id = id;
         this.value = value;
         this.countryName = countryName;
+    }
+
+    public Stat(String id, String value) {
+        this.id = id;
+        this.value = value;
+        this.countryName = NA;
     }
 
     public String getId() {
