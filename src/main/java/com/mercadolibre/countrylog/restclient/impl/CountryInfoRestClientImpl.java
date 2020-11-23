@@ -10,6 +10,7 @@ import com.mercadolibre.countrylog.restclient.dto.CountryInfo;
 import com.mercadolibre.countrylog.restclient.dto.ExchangeRates;
 import com.mercadolibre.countrylog.restclient.dto.Ip2Country;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,25 +23,28 @@ public class CountryInfoRestClientImpl implements CountryInfoRestClient {
     private static final String USD_CODE = "USD";
     
     private CountryInfoRepository countryInfoRepo;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    public CountryInfoRestClientImpl(CountryInfoRepository countryInfoRepo) {
+    public CountryInfoRestClientImpl(CountryInfoRepository countryInfoRepo,
+                                        RestTemplate restTemplate) {
         this.countryInfoRepo = countryInfoRepo;
+        this.restTemplate = restTemplate;
     }
 
     @Override
     public Ip2Country getCountryCodeByIp(String ip) {
         
-        RestTemplate restTemplate = new RestTemplate();
+        Ip2Country response = null;
         try {
-            Ip2Country response = restTemplate.getForObject(String.format(URL_IP2COUNTRY, ip), Ip2Country.class);
-            if (response.getCountryCode().isEmpty())
-                throw new IPNotFoundException("IP: "+ip+" Not Found");
-
-            return response;
-
+            response = restTemplate.getForObject(String.format(URL_IP2COUNTRY, ip), Ip2Country.class);
         } catch (Exception e) {
             throw new ServiceNotAvailableException(e.getMessage());
         } 
+        if (response.getCountryCode().isEmpty())
+            throw new IPNotFoundException("IP: "+ip+" Not Found");
+
+        return response;
     }
     
     @Override
@@ -50,7 +54,6 @@ public class CountryInfoRestClientImpl implements CountryInfoRestClient {
         if (op.isPresent())
             return op.get();
         
-        RestTemplate restTemplate = new RestTemplate();
         try {
             CountryInfo response = restTemplate.getForObject(String.format(URL_RESTCOUNTRY, code), CountryInfo.class);
             countryInfoRepo.save(response);
@@ -61,11 +64,12 @@ public class CountryInfoRestClientImpl implements CountryInfoRestClient {
     }
 
     public Double getExchangeRateToUSD(String code) {
-        RestTemplate restTemplate = new RestTemplate();
         Double usdExchange = null;
         try {
             ExchangeRates rates = restTemplate.getForObject(String.format(URL_EXCHANGE_RATES_API, code), ExchangeRates.class);
             usdExchange = rates.getRates().get(USD_CODE);
+            if (usdExchange == null)
+                usdExchange = Double.NaN;
         } catch (Exception e) {
             usdExchange = Double.NaN;
         }

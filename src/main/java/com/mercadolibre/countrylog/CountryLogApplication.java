@@ -10,6 +10,8 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableRedisRepositories
@@ -20,6 +22,17 @@ public class CountryLogApplication {
     
     @Value("${spring.redis.port}")
     private int redisPort;
+
+    @Bean
+    public RestTemplate restTemplate() {
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(3000);
+
+        return new RestTemplate(factory);
+    }
 
 	@Bean
     public RedisConnectionFactory redisConnectionFactory() {
