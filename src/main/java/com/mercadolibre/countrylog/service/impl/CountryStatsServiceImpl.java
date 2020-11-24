@@ -9,6 +9,9 @@ import com.mercadolibre.countrylog.domain.Stat;
 import com.mercadolibre.countrylog.repository.StatRepository;
 import com.mercadolibre.countrylog.service.CountryStatsService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ public class CountryStatsServiceImpl implements CountryStatsService{
     private static final String DEN = "DEN";
 
     private static final String COUNTRY_NA = "N/A";
+
+    private final static Logger LOG = LoggerFactory.getLogger(CountryStatsServiceImpl.class);
     
     @Autowired
     StatRepository statRepo;
@@ -75,7 +80,7 @@ public class CountryStatsServiceImpl implements CountryStatsService{
             statRepo.save(farthestOp.get());
         }
             
-        System.out.println("Farthest value: "+statRepo.findById(FARTHEST).get().getValue());
+        LOG.info("Farthest value: "+statRepo.findById(FARTHEST).get().getValue());
     }
 
     private void updateNearthest(Double distance, String countryName) {
@@ -89,7 +94,7 @@ public class CountryStatsServiceImpl implements CountryStatsService{
             statRepo.save(nearthestOp.get());
         }
             
-        System.out.println("Nearthest value: "+statRepo.findById(NEARTHEST).get().getValue());
+        LOG.info("Nearthest value: "+statRepo.findById(NEARTHEST).get().getValue());
     }
 
     private void updateAverage(Double distance) {
@@ -118,7 +123,7 @@ public class CountryStatsServiceImpl implements CountryStatsService{
             statRepo.save(den);
         }
         
-        System.out.println("numerator value: "+statRepo.findById(NUM).get().getValue());
-        System.out.println("denominator value: "+statRepo.findById(DEN).get().getValue());
+        LOG.info("numerator value: "+statRepo.findById(NUM).get().getValue());
+        LOG.info("denominator value: "+statRepo.findById(DEN).get().getValue());
     }
 }

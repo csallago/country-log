@@ -34,7 +34,6 @@ public class CountryInfoServiceImpl implements CountryInfoService{
     
     public Country getCountryInfoByIp(String ip) {
         
-        System.out.println("llego la ip: "+ip);
         if (!isValidIP(ip))
             throw new RuntimeException("Param ip Malformed");
         
